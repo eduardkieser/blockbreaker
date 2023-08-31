@@ -16,6 +16,12 @@ Logan Alleman
 Team Manager/POC
 LNA5112@psu.edu
 
+Jonathan Chai
+jmc7556@psu.edu
+penguin
+mushrooms
+
+
 <Name>
 <email>
 <Spirit animal>

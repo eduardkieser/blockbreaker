@@ -12,6 +12,10 @@ Basic rules.
 * Don't commit large files (png/jpeg images/binaries ect) to git. Git rememberers everything that was added (even if you delete it).
 
 Team:
+Logan Alleman
+Team Manager/POC
+LNA5112@psu.edu
+
 <Name>
 <email>
 <Spirit animal>

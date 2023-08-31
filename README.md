@@ -28,7 +28,9 @@ Accountant <br />
 Taher Yusuf Singaporewala <br />
 tys5383@psu.edu <br />
 Scheduler <br />
-<Name>
-<email>
-<Spirit animal>
-<Least favourite food>
+<br />
+Tyler Andre <br />
+tba5168@psu.edu <br />
+Dog <br />
+Cheese <br />
+<br />

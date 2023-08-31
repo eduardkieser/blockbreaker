@@ -21,10 +21,13 @@ jmc7556@psu.edu <br />
 penguin <br />
 mushrooms<br />
 <br />
-Chengpeng Shu
-cfs5645@psu.edu
-Accountant
-
+Chengpeng Shu <br />
+cfs5645@psu.edu <br />
+Accountant <br />
+<br />
+Taher Yusuf Singaporewala <br />
+tys5383@psu.edu <br />
+Scheduler <br />
 <Name>
 <email>
 <Spirit animal>

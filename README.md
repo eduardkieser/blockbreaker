@@ -21,6 +21,9 @@ jmc7556@psu.edu
 penguin
 mushrooms
 
+Chengpeng Shu
+cfs5645@psu.edu
+Accountant
 
 <Name>
 <email>

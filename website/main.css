@@ -1,0 +1,20 @@
+.b1{
+    text-align: right;
+}
+.home{
+    display:inline;
+    margin-right:10px;
+    text-decoration: none;
+}
+.login_button{
+    display: inline;
+}
+.b2{
+    background: transparent;
+    cursor: pointer;
+    border-style: solid;
+    border-radius: 6px;
+    font-weight: 100;
+}
+
+

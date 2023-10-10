@@ -1,0 +1,46 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+.b1{
+    text-align: right;
+}
+.Register{
+    height: fit-content;
+    width: fit-content;
+    position:absolute;
+    top: 30%; 
+    left:40%;
+    text-align: center;
+    border-style: solid;
+}
+.Register .Details{
+    font-size: 40px;
+}
+.Register .Name{
+    margin:10px;
+}
+.Register .username-box{
+    margin: 30px;
+}
+.username-box input{
+    border-radius: 10px;
+    height: 30px;
+}
+.username-box input{
+    border-radius: 10px;
+    height: 30px;
+}
+.First_Name-box input{
+    border-radius: 10px;
+    height: 30px;
+}
+.password-box i{
+    position: absolute;
+    right: 15%;
+    bottom: 29%;
+}
+
+
+

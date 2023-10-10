@@ -21,25 +21,33 @@
 .Register .Name{
     margin:10px;
 }
-.Register .username-box{
-    margin: 30px;
-}
-.username-box input{
-    border-radius: 10px;
-    height: 30px;
-}
-.username-box input{
-    border-radius: 10px;
-    height: 30px;
-}
 .First_Name-box input{
     border-radius: 10px;
     height: 30px;
 }
-.password-box i{
-    position: absolute;
-    right: 15%;
-    bottom: 29%;
+.Register .Last_Name{
+    margin:10px;
+} 
+.Last_Name-box input{
+    border-radius: 10px;
+    height: 30px;
+}
+.Register .Username{
+    margin:10px
+}
+.username-box input{
+    border-radius: 10px;
+    height: 30px;
+}
+.Register .Password{
+    margin:10px;
+}
+.password-box input{
+    border-radius: 10px;
+    height: 30px;
+}
+.btn{
+    margin:10px;
 }
 
 

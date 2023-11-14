@@ -1,0 +1,119 @@
+#include <SPI.h>
+#include <WiFiNINA.h>
+
+
+int port = 8080;
+WiFiClient client;
+unsigned long lastRequestTime = 0;
+const unsigned long requestInterval = 60000;
+void setup() {
+  Serial.begin(9600);
+  while (!Serial);
+
+  if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println("WiFi shield not present");
+    while (true);
+  }
+
+  int status = WL_IDLE_STATUS;
+  while (status != WL_CONNECTED) {
+    Serial.println("Attempting to connect to WiFi...");
+    status = WiFi.begin(ssid, pass);
+    delay(10000); // Adjust the delay as needed
+    Serial.println(WiFi.status());
+  }
+
+  Serial.println("Connected to WiFi");
+
+  
+  char aePayld[256]; // Make sure the array is large enough to hold your payload
+  sprintf(aePayld, "{ \"m2m:ae\": { \"rr\": true, \"api\": \"NR_AE001\", \"apn\": \"IOTApp\", \"csz\": [ \"application/json\" ], \"srv\": [ \"2a\" ], \"rn\": \"Data\", \"poa\": [ \"http://100.64.12.153:8080\" ] } }");
+
+  if (client.connect(server, port)) {
+    Serial.println("Connected to server");
+    client.println("POST /id-in HTTP/1.1");
+    client.println("Host: 3.18.103.170:8080");
+    client.println("Connection: close");
+    client.println("X-M2M-RI: xyz1");
+    client.println("X-M2M-Origin: CData");
+    client.println("X-M2M-RVI: 3");
+    client.println("Content-Type: application/json;ty=2");
+    client.print("Content-Length: ");
+    client.println(strlen(aePayld));
+    client.println();
+    client.println(aePayld);
+  } else {
+    Serial.println("Connection to server failed");
+  }
+  while (client.connected()) {
+    if (client.available()) {
+        char c = client.read();
+        Serial.print(c);
+    }
+}
+client.stop();
+
+char cntPayld[] = "{ \"m2m:cnt\": { \"rn\": \"CNT001\", \"lbl\": [ \"key1\", \"key2\" ], \"mni\": 10 } }";
+Serial.println("Container Create Request");
+Serial.println("************************");
+Serial.println(cntPayld);
+Serial.println("************************\n");
+if(client.connect(server, port)){
+  client.println("POST /cse-in/Data HTTP/1.1");
+  client.println("Host: 3.18.103.170:8080");
+  client.println("Connection: close");
+  client.println("X-M2M-RI: xyz1");
+  client.println("X-M2M-Origin: CData");
+  client.println("X-M2M-RVI: 3");
+  client.println("Content-Type: application/json;ty=3");
+  client.print("Content-Length: ");
+  client.println(strlen(cntPayld));
+  client.println();
+  client.println(cntPayld);
+
+}
+else{
+  Serial.println("Connection to server failed2");
+}
+  while (client.connected()) {
+    if (client.available()) {
+        char c = client.read();
+        Serial.print(c);
+    }
+}
+client.stop();
+
+char string64[] = "Your_Base64_Encoded_String"; // Replace with your actual Base64 string
+String ciPayld = "{ \"m2m:cin\": { \"cnf\": \"application/text:0\", \"con\": \"" + String(string64) + "\" } }";
+Serial.println("CI Create Request");
+Serial.println("************************");
+Serial.println(ciPayld);
+Serial.println("************************\n");
+if(client.connect(server, port)){
+  client.println("POST /cse-in/Data/CNT001 HTTP/1.1");
+  client.println("Host: 3.18.103.170:8080");
+  client.println("Connection: close");
+  client.println("X-M2M-RI: xyz1");
+  client.println("X-M2M-Origin: CData");
+  client.println("X-M2M-RVI: 3");
+  client.println("Content-Type: application/json;ty=4");
+  client.print("Content-Length: ");
+  client.println(ciPayld.length());
+  client.println();
+  client.println(ciPayld);
+}
+else{
+  Serial.println("Connection to server failed3");
+}
+  while (client.connected()) {
+    if (client.available()) {
+        char c = client.read();
+        Serial.print(c);
+    }
+}
+client.stop();
+}
+
+void loop() {
+
+}

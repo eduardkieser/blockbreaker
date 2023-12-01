@@ -1,15 +1,26 @@
-#include "HX711.h" 
+#include <HX711.h> 
 #include <AccelStepper.h>
+#include <SPI.h>
+#include <WiFiNINA.h>
+
+//USER DECLARED VARIABLES////////////////////////////////////////////////////////
+char ssid[] = "Rosscalvinar";
+char pass[] = "wnnu930&";
+/////////////////////////////////////////////////////////////////////////////////
 
 #define LOADCELL_SCK_PIN  2
-#define LOADCELL_DOUT_PIN  4
+#define LOADCELL_DOUT_PIN  3
 #define DIR_PIN  5 //for stepper motor
 #define STEP_PIN  6 //
 #define BUTTON_1  14 //left
 #define BUTTON_2  15 //middle
 #define BUTTON_3  16 //right
 #define CTRL_LED  17
-#define STEP_SPEED  100 //speed of stepper motor
+#define TEMP_PIN  A4
+#define STEP_SPEED  200.0 //speed of stepper motor in steps/sec
+#define STEPS_PER_ROT 200.0
+#define DIST_PER_ROT 0.008 //in meters
+#define IPAddress 192.168.176.182
 
 HX711 scale;
 
@@ -19,9 +30,19 @@ unsigned long previousMillis = 0;  // will store last time LED was updated
 unsigned long currentMillis = 0;
 long interval = 500;  // interval at which to blink (milliseconds)
 int input = 0;  //for reading serial port
-float calibration_factor = -20250; //-20250 worked for our PSD-S1 load cell
-float data [100]; //to store readings
-float testMax = 0;
+double calibration_factor = -20250; //-20250 worked for our PSD-S1 load cell
+double data [256]; //to store readings
+double testMax = 0;
+double impEng = 0;
+double temp = 25;
+int testType = 0;
+
+//wifi setup
+int port = 8080;
+char server[] = "IPAddress";
+WiFiClient client;
+unsigned long lastRequestTime = 0;
+const unsigned long requestInterval = 60000;
 
 
 AccelStepper myStepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN); // setup stepper motor
@@ -39,6 +60,83 @@ void setup() {
   scale.set_scale();
   scale.tare();  //zero the scale
 
+  //Wifi Setup//////////////////////////////////////////////////////////////////////////////////////////
+  
+  if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println("WiFi shield not present");
+    while (true);
+  }
+
+  int status = WL_IDLE_STATUS;
+  while (status != WL_CONNECTED) {
+    Serial.println("Attempting to connect to WiFi...");
+    status = WiFi.begin(ssid, pass);
+    delay(10000); // Adjust the delay as needed
+    Serial.println(WiFi.status());
+  }
+
+  Serial.println("Connected to WiFi");
+
+  
+  char aePayld[256]; // Make sure the array is large enough to hold the payload
+  sprintf(aePayld, "{ \"m2m:ae\": { \"rr\": true, \"api\": \"NR_AE001\", \"apn\": \"IOTApp\", \"csz\": [ \"application/json\" ], \"srv\": [ \"2a\" ], \"rn\": \"Data\", \"poa\": [ \"http://192.168.176.182:8080\" ] } }");
+
+  if (client.connect(server, port)) {
+    Serial.println("Connected to server");
+    client.println("POST /id-in HTTP/1.1");
+    client.println("Host: 192.168.176.182:8080");
+    client.println("Connection: close");
+    client.println("X-M2M-RI: xyz1");
+    client.println("X-M2M-Origin: CData");
+    client.println("X-M2M-RVI: 3");
+    client.println("Content-Type: application/json;ty=2");
+    client.print("Content-Length: ");
+    client.println(strlen(aePayld));
+    client.println();
+    client.println(aePayld);
+  } else {
+    Serial.println("Connection to server failed");
+  }
+  while (client.connected()) {
+    if (client.available()) {
+        char c = client.read();
+        Serial.print(c);
+    }
+  }
+  client.stop();
+
+  char cntPayld[] = "{ \"m2m:cnt\": { \"rn\": \"CNT001\", \"lbl\": [ \"key1\", \"key2\" ], \"mni\": 10 } }";
+  Serial.println("Container Create Request");
+  Serial.println("************************");
+  Serial.println(cntPayld);
+  Serial.println("************************\n");
+  if(client.connect(server, port)){
+    client.println("POST /cse-in/Data HTTP/1.1");
+    client.println("Host: 192.168.176.182:8080");
+    client.println("Connection: close");
+    client.println("X-M2M-RI: xyz1");
+    client.println("X-M2M-Origin: CData");
+    client.println("X-M2M-RVI: 3");
+    client.println("Content-Type: application/json;ty=3");
+    client.print("Content-Length: ");
+    client.println(strlen(cntPayld));
+    client.println();
+    client.println(cntPayld);
+
+  }
+  else{
+    Serial.println("Connection to server failed2");
+  }
+    while (client.connected()) {
+      if (client.available()) {
+          char c = client.read();
+          Serial.print(c);
+      }
+  }
+  client.stop();
+
+  //setup stop//////////////////////////////////////////////////////////////////////////////////////////
+
   Serial.begin(9600);
   Serial.println("Welcome to Project Block Breaker");
 
@@ -49,6 +147,13 @@ void setup() {
 
 void loop() {
   //choice 1
+  double temp = 25;
+  int testType = 0;
+  testMax = 0;
+    for(int i=0; i<100; i++){
+      data[i] = 0; // clear data for new test
+    }
+
   button = 0;
   Serial.println("1: Adjust Left, 2: Chose Test, 3: Adjust Right");
   while(button == 0){
@@ -108,17 +213,26 @@ void loop() {
     Serial.println("Running Impact Test...");
     //Run Impact Test/////////////////////////////////////////////////////////////////////////////////////////
     testMax = 0;
+    impEng = 0;
+    testType = 2;
     for(int i=0; i<100; i++){
       data[i] = 0; // clear data for new test
     }
     int i = 0;
     scale.set_scale(calibration_factor);
     myStepper.setSpeed(STEP_SPEED);
-    myStepper.runSpeed();
+    
     button = 0;
     while(button == 0){
+      myStepper.runSpeed();
       if((digitalRead(BUTTON_1)==HIGH)||(digitalRead(BUTTON_2)==HIGH)||(digitalRead(BUTTON_3)==HIGH)){
         button = 1;
+      }
+      if (Serial.available() > 0) {
+        input = Serial.read();
+        if((input >= 49) && (input <= 51)){
+          button = 1;
+        }
       }
       data[i] = (scale.get_units()*4.4482); //calibrated for lbs, so converting to newtons
       Serial.print(data[i]);
@@ -127,53 +241,75 @@ void loop() {
       if(data[i] > testMax){
         testMax = data[i];
       }
-      else if(data[i]+3 < (testMax/2)){
+      else if(abs(data[i]+3) < abs(testMax/2)){
         button = 1;
       }
       i++;
-      delay(500);
+      for(int i = 0; i<500; i++){
+        myStepper.runSpeed();
+        delay(1);
+      }
     }
     myStepper.stop();
-    button = 0;
-    //calculate work here
+    button = 1;
+    //calculate impact energy here
+    for(int i = 0; i<255; i++){
+      impEng += data[i] * ((STEP_SPEED/2.0) / STEPS_PER_ROT) * DIST_PER_ROT;
+      if(data[i] == testMax){break;}
+    }
+    
     delay(500);
     Serial.print("Impact Test Complete, Peak Force: ");
     Serial.print(testMax);
     Serial.println(" N");
+    Serial.print("Impact Energy: ");
+    Serial.print(impEng);
+    Serial.println(" J");
     //end of test//////////////////////////////////////////////////////////////////////////////////////////////////
   }
   else if(button == 3){
     Serial.println("Running Tensile Test, press any button to cancel");
     //Run Tensile Test/////////////////////////////////////////////////////////////////////////////////////////
     testMax = 0;
+    testType = 1;
     for(int i=0; i<100; i++){
       data[i] = 0; // clear data for new test
     }
     int i = 0;
     scale.set_scale(calibration_factor);
     myStepper.setSpeed(-STEP_SPEED);
-    myStepper.runSpeed();
+    
     button = 0;
     while(button == 0){
+      myStepper.runSpeed();
       if((digitalRead(BUTTON_1)==HIGH)||(digitalRead(BUTTON_2)==HIGH)||(digitalRead(BUTTON_3)==HIGH)){
         button = 1;
       }
-      data[i] = -(scale.get_units()*4.4482); //calibrated for lbs, so converting to newtons
+      if (Serial.available() > 0) {
+        input = Serial.read();
+        if((input >= 49) && (input <= 51)){
+          button = 1;
+        }
+      }
+      data[i] = (scale.get_units()*4.4482)*(-1); //calibrated for lbs, so converting to newtons
       Serial.print(data[i]);
       Serial.println(" N");
 
       if(data[i] > testMax){
         testMax = data[i];
       }
-      else if(data[i]+3 < (testMax/2)){
+      else if(abs(data[i]+3) < abs(testMax/2)){
         button = 1;
       }
       i++;
-      delay(500);
+      for(int i = 0; i<500; i++){
+        myStepper.runSpeed();
+        delay(1);
+      }
     }
     myStepper.stop();
-    button = 0;
     delay(500);
+    button = 1;
     Serial.print("Tensile Test Complete, Tensile Strength: ");
     Serial.print(testMax);
     Serial.println(" N");
@@ -209,7 +345,44 @@ void loop() {
 
   if(button == 1){
     Serial.println("Uploading...");
-    //Upload results
+    //Upload results//////////////////////////////////////////////////////////////////////////////
+    //int testType _ double testMax _ double impEng _ double temp
+
+    std::string strData = std::to_string(testType) + " " + std::to_string(testMax) + " " + std::to_string(impEng) + " " + std::to_string(temp);
+    char string64[256];
+    strcpy(string64, strData.c_str()); 
+
+    String ciPayld = "{ \"m2m:cin\": { \"cnf\": \"application/text:0\", \"con\": \"" + String(string64) + "\" } }";
+    Serial.println("CI Create Request");
+    Serial.println("************************");
+    Serial.println(ciPayld);
+    Serial.println("************************\n");
+    if(client.connect(server, port)){
+      client.println("POST /cse-in/Data/CNT001 HTTP/1.1");
+      client.println("Host: 192.168.176.182:8080");
+      client.println("Connection: close");
+      client.println("X-M2M-RI: xyz1");
+      client.println("X-M2M-Origin: CData");
+      client.println("X-M2M-RVI: 3");
+      client.println("Content-Type: application/json;ty=4");
+      client.print("Content-Length: ");
+      client.println(ciPayld.length());
+      client.println();
+      client.println(ciPayld);
+    }
+    else{
+      Serial.println("Connection to server failed3");
+    }
+      while (client.connected()) {
+        if (client.available()) {
+            char c = client.read();
+            Serial.print(c);
+        }
+    }
+    client.stop();
+    
+    
+//end upload/////////////////////////////////////////////////////////////////////////////////
     Serial.println("Upload Complete");
   }
   else if(button == 3){
@@ -227,11 +400,17 @@ void loop() {
 
 void manualMove(int speed){
   myStepper.setSpeed(speed);
-  myStepper.runSpeed();
   button = 0;
   while(button == 0){
+    myStepper.runSpeed();
     if((digitalRead(BUTTON_1)==HIGH)||(digitalRead(BUTTON_2)==HIGH)||(digitalRead(BUTTON_3)==HIGH)){
       button = 1;
+    }
+    if (Serial.available() > 0) {
+      input = Serial.read();
+      if((input >= 49) && (input <= 51)){
+        button = 1;
+      }
     }
   }
   myStepper.stop();

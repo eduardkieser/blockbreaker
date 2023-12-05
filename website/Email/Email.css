@@ -7,30 +7,39 @@
     text-align: right;
 }
 .login{
-    height: fit-content;
+    height: 270px;
     width: fit-content;
     position:absolute;
-    top: 30%; 
-    left:40%;
+    top: 50%; 
+    left:50%;
+    transform: translate(-50%,-80%);
     text-align: center;
     border-style: solid;
 }
 .login h1{
     font-size: 40px;
 }
-.login .username-box{
-    margin: 30px;
+.EmailId-box{
+    position:relative;
+    margin-top: 7%;
 }
-.username-box input{
+
+.EmailId-box input{
     border-radius: 10px;
     height: 30px;
 }
-.username-box i{
+.EmailId-box i{
     position: absolute;
     right: 15%;
-    bottom: 56%;
+    bottom: 30%;
+}
+
+.password-box {
+    position: relative;
+    margin-top: 7%;
 }
 .password-box input{
+    margin: 0;
     border-radius: 10px;
     height: 30px;
 }
@@ -38,6 +47,9 @@
     position: absolute;
     right: 15%;
     bottom: 29%;
+}
+.error{
+    margin-top: 6%;
 }
 
 

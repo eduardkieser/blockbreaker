@@ -13,28 +13,32 @@
 </head>
 <body>
     <div class="b1">
-        <a href="./main.html" class="home">Home</a>    
+        <a href="../main.html" class="home">Home</a>    
     </div>    
     <div class="Register">
-        <form action ="">
+        <form action ="Register.php" method="POST">
             <h1 class="Details">Enter Your Details</h1>
             <p class="Name">Enter Your First Name</p>
             <div class="First_Name-box">
-                <input type="text" placeholder=" First Name" required> 
+                <input type="text" name = "first_name"  id = "first_name" placeholder=" First Name" required> 
             </div>
             <p class="Last_Name">Enter Your Last Name</p>
             <div class="Last_Name-box">
-                <input type="text" placeholder=" Last Name" required> 
+                <input type="text" name = "last_name" id = "last_name"  placeholder=" Last Name" required> 
+            </div>
+            <p class="Email">Enter Your Email ID</p>
+            <div class="Email-box">
+                <input type="text" name = "email_id" id = "email_id" placeholder=" Email ID" required> 
             </div>
             <p class="Username">Enter Your Username</p>
             <div class="username-box">
-                <input type="text" placeholder=" Username" required> 
+                <input type="text" name = "username" id = "username" placeholder=" Username" required> 
             </div>
             <p class="Password">Enter Your Password</p>
             <div class="password-box">
-                <input type="text" placeholder=" Password" required> 
+                <input type="password" name ="password" id ="password" placeholder=" Password" required> 
             </div>
-            <button type="submit" class="btn">Login</button>
+            <button type="submit" href = "../User/user.html" id = "btn" name ="btn">Submit</button>
         </form>
     </div>    
 </body>

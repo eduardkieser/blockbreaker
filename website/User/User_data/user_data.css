@@ -1,0 +1,53 @@
+.Name{
+    display: flex;
+    font-size: 150%;
+    margin-bottom: 4%;
+}
+.Name1{
+    flex: 1;
+    font-weight: bold;
+}
+.right{
+    display: flex;
+    flex-direction: row;
+}
+.home{
+    margin-left:4%;
+    text-decoration: none;
+    color: black;
+
+}
+.username-box{
+    border-style: solid;
+    padding: 0.8%;
+    margin-left: 4%
+}
+.logout{
+    display: inline;
+    margin-left: 4%;
+    text-decoration: none;
+}
+.logout1{
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 100;
+    padding: 1% 1%; 
+}
+.user_page{
+    display: inline;
+    margin-right: 1%;
+    text-decoration: none;
+}
+.user_page1{
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 100;
+    padding: 1% 1%; 
+    font-size: 70%;
+}
+.image{
+    width:20%;
+    height:30%;
+}

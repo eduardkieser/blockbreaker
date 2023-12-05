@@ -3,10 +3,41 @@
 }
 .home{
     display:inline;
-    margin-right:10px;
+    margin-left:1%;
     text-decoration: none;
 }
 .login_button{
+    display: inline;
+}
+.logout{
+    display: inline;
+    margin-right: 1%;
+    text-decoration: none;
+}
+.logout1{
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 100;
+    padding: 1% 1%; 
+    font-size: 70%;
+}
+.user_page{
+    display: inline;
+    margin-right: 1%;
+    text-decoration: none;
+}
+.user_page1{
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 100;
+    padding: 1% 1%; 
+    font-size: 70%;
+}
+.username-box{
+    border-style: solid;
+    padding: 0.4%;
     display: inline;
 }
 .b2{
@@ -15,6 +46,24 @@
     border-style: solid;
     border-radius: 6px;
     font-weight: 100;
+}
+.img{
+    margin-top: 2.7%;
+
+}
+.img1{
+    border-style: solid;
+    width:20%;
+    height:30%;
+    display: inline-block;
+    text-align: center;
+    margin-right: 1%;
+}
+.image{
+    height: 100%;
+    width: 100%;
+    position: relative;
+    
 }
 
 

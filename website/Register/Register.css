@@ -39,6 +39,13 @@
     border-radius: 10px;
     height: 30px;
 }
+.Register .Email{
+    margin:10px
+}
+.Email-box input{
+    border-radius: 10px;
+    height: 30px;
+}
 .Register .Password{
     margin:10px;
 }

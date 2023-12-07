@@ -5,7 +5,7 @@
     $username = $_SESSION['UserName'];
     $sel = "SELECT * FROM user_image WHERE username = '$username'";
     $que = mysqli_query($conn, $sel);
-    $counter = 1;
+    $counter = 0;
 ?>
 <head>
     <meta charset="utf-8">
@@ -33,22 +33,20 @@
             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['main_id'])){
                 if($que){
                     mysqli_data_seek($que, $_POST['main_id'] - 1);
-                    $row = mysqli_fetch_array($que);
-                    echo '<script>';
-echo 'console.log("PHP says: Hello from the console!");';
-echo '</script>';
-                    if($row){
-                        $_SESSION['FileName'] = $row['Name'];
+                    $row1 = mysqli_fetch_array($que);
+                    if($row1){
+                        $_SESSION['FileName'] = $row1['Name'];
                         header("location:./User_data/User_data.php");
                     }
                 }
             }
             while ($row = mysqli_fetch_array($que)) {
+                $counter++;
                 $MainId = $counter;
                 $HeadId = 'Name' . $counter;
                 $mId = 'M'.$counter;
                 ?>
-                <div class="img1">
+                <div id = "<?php echo $mId;?>" class="img1">
                     <?php if ($row["Name"] == null) : ?>
                         <script>
                             function submitForm() {
@@ -128,7 +126,6 @@ echo '</script>';
             
                                 // Use escapeshellarg for parameter escaping
                                 $escapedParam1 = escapeshellarg($param1);
-            
                                 // Construct the command
                                 $command = "python test.py $escapedParam1";
             
@@ -136,10 +133,9 @@ echo '</script>';
                                 $resultAsString = trim(shell_exec($command));
                                 $FileName = pathinfo($resultAsString, PATHINFO_FILENAME);
                                 $FileName= strtoupper($FileName);
-
                                 $updatedName = mysqli_real_escape_string($conn, $FileName);
                                 $Image_Path = substr($resultAsString, 2);
-                                
+
                                 $updateQuery = "UPDATE user_image SET Name = '$updatedName', IMG = '$Image_Path', STL = '$targetFile' WHERE IMG = '' AND username = '$username'";
                                 
                                 $result = mysqli_query($conn, $updateQuery);
@@ -149,7 +145,28 @@ echo '</script>';
                                     hideForm();
                                 </script>
                                 <div class="Name">
-                            <h10><?php echo $FileName ?></h10>
+                            <h10 id="<?php echo $HeadId; ?>"><?php echo $FileName ?></h10>
+                            <form id="<?php echo $MainId; ?>" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                            <input type="hidden" name="main_id" value="<?php echo $MainId; ?>">
+                            </form>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('<?php echo $MainId; ?>');
+    var h10 = document.getElementById('<?php echo $HeadId; ?>');
+
+    console.log(form); // Log the form element to the console
+
+    if (form && h10) {
+        h10.addEventListener('click', function () {
+            form.submit();
+        });
+    } else {
+        console.error('Form submission error: Element not found');
+    }
+});
+        </script>
+
                         </div>
                             <?php } else {
                                 echo "Sorry, there was an error uploading your file.";
@@ -186,7 +203,6 @@ echo '</script>';
                     <?php endif; ?>
                 </div>
             <?php
-            $counter++;
             }
             ?> 
     </div>

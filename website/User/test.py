@@ -18,7 +18,7 @@ plt.elevation(45)
 # Show the STL file in the plotter
 plt.show(kunai, interactive=False)
 
-param1= param1.replace("./STL_Files/", "./Image/").replace(".stl", ".png")
+param1 = param1.lower().replace("./stl_files/", "./image/").replace(".stl", ".png")
 # Save the screenshot
 plt.screenshot(param1)
 

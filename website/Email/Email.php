@@ -13,7 +13,7 @@
 </head>
 <body
     <div class="b1">
-        <a href="../main.html" class="home">Home</a>    
+        <a href="../main.php" class="home">Home</a>    
     </div>    
     <div class="login">
         <form action ="Email1.php" method="post">
@@ -22,12 +22,13 @@
                 <p class = "error"><?php echo $_GET['error'] ?> </p>
             <?php }?>
             <div class="EmailId-box">
+            <i class='bx bx-envelope'></i>
                 <input type="text" name = "EmailID" id = "EmailID" placeholder=" Email ID" required> 
-                <i class='bx bx-envelope'></i>
+               
             </div>
             <div class="password-box">
-                <input type="password" name = "password" id = "password" placeholder=" Password" required> 
                 <i class='bx bx-lock-alt' ></i>
+                <input type="password" name = "password" id = "password" placeholder=" Password" required> 
             </div>
             <div class="forget">
                 <a href="">Forget Password?</a>

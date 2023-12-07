@@ -20,7 +20,10 @@
         $Impact = $row['Impact'];
         echo $Impact;
         $Tensile = $row['Tensile'];
-        $sel = "INSERT INTO user_data (ID, UserName, Name, Test, Impact, Tensile) VALUES ('$ID', '$username', '$textValue', '$test', '$Impact', '$Tensile')"; 
+        $temperature = $row['Temperature'];
+        $sel = "INSERT INTO user_data (ID, UserName, Name, Test, Impact, Tensile, Temperature) VALUES ('$ID', '$username', '$textValue', '$test', '$Impact', '$Tensile', '$temperature')"; 
         $que = mysqli_query($conn, $sel);
+        $sel = "DELETE FROM user_image WHERE Name = ''";
+        mysqli_query($conn, $sel);
     }
 ?>

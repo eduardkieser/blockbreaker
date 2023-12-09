@@ -1,6 +1,8 @@
 # blockbreaker
 A system for crowd sourcing properties of 3D printed materials.
 
+Here is our official showcase: https://sites.psu.edu/lfshowcasefa23/2023/12/05/block-breaker-a-community-driven-material-testing-project-for-3d-printing-2/
+
 <More detail about what we are doing>
 
 Basic rules.

@@ -4,8 +4,8 @@
 #include <WiFiNINA.h>
 
 //USER DECLARED VARIABLES////////////////////////////////////////////////////////
-char ssid[] = "Rosscalvinar";
-char pass[] = "wnnu930&";
+char ssid[] = "Wifi Name";
+char pass[] = "Password";
 /////////////////////////////////////////////////////////////////////////////////
 
 #define LOADCELL_SCK_PIN  2
@@ -16,10 +16,11 @@ char pass[] = "wnnu930&";
 #define BUTTON_2  15 //middle
 #define BUTTON_3  16 //right
 #define CTRL_LED  17
-#define TEMP_PIN  A4
+#define TEMP_PIN  A7
 #define STEP_SPEED  200.0 //speed of stepper motor in steps/sec
 #define STEPS_PER_ROT 200.0
 #define DIST_PER_ROT 0.008 //in meters
+#define TEMP_RES 10000   
 #define IPAddress 192.168.176.182
 
 HX711 scale;
@@ -205,6 +206,7 @@ void loop() {
       }
     }
     delay(500);
+    digitalWrite(CTRL_LED, LOW);
   }
   else{button = 0;}
 
@@ -215,6 +217,7 @@ void loop() {
     testMax = 0;
     impEng = 0;
     testType = 2;
+    temp = 0;
     for(int i=0; i<100; i++){
       data[i] = 0; // clear data for new test
     }
@@ -245,13 +248,24 @@ void loop() {
         button = 1;
       }
       i++;
-      for(int i = 0; i<500; i++){
+
+      temp = getTemp()/256;
+
+      digitalWrite(CTRL_LED, LOW);
+      for(int i = 0; i<250; i++){
+        myStepper.runSpeed();
+        delay(1);
+      }
+      digitalWrite(CTRL_LED, HIGH);
+      for(int i = 0; i<250; i++){
         myStepper.runSpeed();
         delay(1);
       }
     }
     myStepper.stop();
     button = 1;
+    //calculate temp
+    temp = temp*(256/(i+1));
     //calculate impact energy here
     for(int i = 0; i<255; i++){
       impEng += data[i] * ((STEP_SPEED/2.0) / STEPS_PER_ROT) * DIST_PER_ROT;
@@ -265,6 +279,9 @@ void loop() {
     Serial.print("Impact Energy: ");
     Serial.print(impEng);
     Serial.println(" J");
+    Serial.print("Temperature: ");
+    Serial.print(temp);
+    Serial.println(" C");
     //end of test//////////////////////////////////////////////////////////////////////////////////////////////////
   }
   else if(button == 3){
@@ -272,6 +289,8 @@ void loop() {
     //Run Tensile Test/////////////////////////////////////////////////////////////////////////////////////////
     testMax = 0;
     testType = 1;
+    temp = 0;
+    impEng = 0;
     for(int i=0; i<100; i++){
       data[i] = 0; // clear data for new test
     }
@@ -302,17 +321,31 @@ void loop() {
         button = 1;
       }
       i++;
-      for(int i = 0; i<500; i++){
+
+      temp = getTemp()/256;
+
+      digitalWrite(CTRL_LED, LOW);
+      for(int i = 0; i<250; i++){
+        myStepper.runSpeed();
+        delay(1);
+      }
+      digitalWrite(CTRL_LED, HIGH);
+      for(int i = 0; i<250; i++){
         myStepper.runSpeed();
         delay(1);
       }
     }
     myStepper.stop();
+    //calculate temp
+    temp = temp*(256/(i+1));
     delay(500);
     button = 1;
     Serial.print("Tensile Test Complete, Tensile Strength: ");
     Serial.print(testMax);
     Serial.println(" N");
+    Serial.print("Temperature: ");
+    Serial.print(temp);
+    Serial.println(" C");
     //end of test//////////////////////////////////////////////////////////////////////////////////////////////////
   }
   else if(button == 2){
@@ -324,6 +357,7 @@ void loop() {
   //choice 3
   if(button != 0){
     button = 0;
+    digitalWrite(CTRL_LED, HIGH);
     Serial.println("1: Upload Results, 2: Cancel to Start, 3: Add Test");
     while(button == 0){
       digitalWrite(CTRL_LED, HIGH);
@@ -341,6 +375,7 @@ void loop() {
       }
     }
     delay(500);
+    digitalWrite(CTRL_LED, LOW);
   }
 
   if(button == 1){
@@ -397,6 +432,19 @@ void loop() {
   }
   else{button = 0;}
 }
+double getTemp(){
+  float reading;
+  
+  reading = analogRead(TEMP_PIN);
+ 
+  reading = (1023 / reading)  - 1;     // (1023/ADC - 1) 
+  reading = TEMP_RES / reading;  // 10K / (1023/ADC - 1)
+  
+  //1/T = a + b(ln(Rt/R25)) + c(ln(Rt/R25))^2 + d(ln(Rt/R25))^3
+  double temp = (1.0/(0.003354 + 0.0002563*log(reading/3000.0) + pow(0.000002083*log(reading/3000.0), 2.0)) + pow(0.000000073*log(reading/3000.0), 3.0))-273.15;
+
+  return(temp);
+}
 
 void manualMove(int speed){
   myStepper.setSpeed(speed);
@@ -415,5 +463,8 @@ void manualMove(int speed){
   }
   myStepper.stop();
   button = 0;
-  delay(500);
+  digitalWrite(CTRL_LED, HIGH);
+  delay(250);
+  digitalWrite(CTRL_LED, LOW);
+  delay(250);
 }
